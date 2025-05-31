@@ -8,11 +8,11 @@ using Desafio.API.Data;
 namespace Desafio.API.Controllers
 {
     [ApiController]
-    [Route("api/machines")]
-    public class MachineController : ControllerBase
+    [Route("api/[controller]")]
+    public class MachinesController : ControllerBase
     {
         private readonly DataContext _context;
-        public MachineController(DataContext context)
+        public MachinesController(DataContext context)
         {
             _context = context;
         }

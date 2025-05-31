@@ -40,6 +40,7 @@ namespace Desafio.API
             {
                 options.OutputFormatters.Insert(0, new Microsoft.AspNetCore.Mvc.Formatters.StringOutputFormatter());
             });
+            services.AddCors();
 
             services.AddSwaggerGen(c =>
             {
@@ -69,6 +70,11 @@ namespace Desafio.API
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseCors(x => x.AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowAnyOrigin()            
+            );
 
             app.UseEndpoints(endpoints =>
             {
