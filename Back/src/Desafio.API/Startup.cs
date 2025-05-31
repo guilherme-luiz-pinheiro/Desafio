@@ -13,6 +13,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
+using Desafio.API.Data;
+using Microsoft.EntityFrameworkCore;
+using SQLitePCL;
 
 namespace Desafio.API
 {
@@ -28,6 +31,11 @@ namespace Desafio.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            Batteries.Init();
+
+            services.AddDbContext<DataContext>(
+                context => context.UseSqlite(Configuration.GetConnectionString("Default"))
+            );
             services.AddControllers(options =>
             {
                 options.OutputFormatters.Insert(0, new Microsoft.AspNetCore.Mvc.Formatters.StringOutputFormatter());

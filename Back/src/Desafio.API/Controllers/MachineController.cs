@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Desafio.API.Models;
+using Desafio.API.Data;
 
 namespace Desafio.API.Controllers
 {
@@ -10,7 +11,12 @@ namespace Desafio.API.Controllers
     [Route("api/machines")]
     public class MachineController : ControllerBase
     {
-        private static List<Machine> machines = new List<Machine>();
+        private readonly DataContext _context;
+        public MachineController(DataContext context)
+        {
+            _context = context;
+        }
+
 
         [HttpPost]
         public IActionResult CreateMachine([FromBody] Machine machine)
@@ -21,20 +27,25 @@ namespace Desafio.API.Controllers
             }
 
             machine.Id = Guid.NewGuid();
-            machines.Add(machine);
+            _context.Machine.Add(machine);
+
+            // ESSENCIAL: salva as mudanças no banco
+            _context.SaveChanges();
+
             return CreatedAtAction(nameof(GetMachineById), new { id = machine.Id }, machine);
         }
+
 
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(machines);
+            return Ok(_context.Machine);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetMachineById(Guid id)
         {
-            var machine = machines.FirstOrDefault(m => m.Id == id);
+            var machine = _context.Machine.Where(machine => machine.Id == id);
             if (machine == null)
             {
                 return NotFound();
@@ -50,7 +61,7 @@ namespace Desafio.API.Controllers
                 return BadRequest("Invalid machine data.");
             }
 
-            var existingMachine = machines.FirstOrDefault(m => m.Id == id);
+            var existingMachine = _context.Machine.FirstOrDefault(m => m.Id == id);
             if (existingMachine == null)
             {
                 return NotFound();
@@ -67,13 +78,13 @@ namespace Desafio.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteMachine(Guid id)
         {
-            var machine = machines.FirstOrDefault(m => m.Id == id);
+            var machine = _context.Machine.FirstOrDefault(m => m.Id == id);
             if (machine == null)
             {
                 return NotFound();
             }
 
-            machines.Remove(machine);
+            _context.Machine.Remove(machine);
             return NoContent();
         }
     }
