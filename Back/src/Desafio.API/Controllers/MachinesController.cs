@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Desafio.API.Models;
 using Desafio.API.Data;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
 namespace Desafio.API.Controllers
 {
@@ -19,7 +21,7 @@ namespace Desafio.API.Controllers
 
 
         [HttpPost]
-        public IActionResult CreateMachine([FromBody] Machine machine)
+        public async Task<IActionResult> CreateMachine([FromBody] Machine machine)
         {
             if (machine == null || string.IsNullOrEmpty(machine.Name))
             {
@@ -30,7 +32,7 @@ namespace Desafio.API.Controllers
             _context.Machine.Add(machine);
 
             // ESSENCIAL: salva as mudanças no banco
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetMachineById), new { id = machine.Id }, machine);
         }
@@ -65,14 +67,14 @@ namespace Desafio.API.Controllers
         }
 
         [HttpPut("{id}")]
-        public IActionResult UpdateMachine(Guid id, [FromBody] Machine updatedMachine)
+        public async Task<IActionResult> UpdateMachine(Guid id, [FromBody] Machine updatedMachine)
         {
-            if (updatedMachine == null || string.IsNullOrEmpty(updatedMachine.Name))
+            if (updatedMachine == null || string.IsNullOrWhiteSpace(updatedMachine.Name))
             {
                 return BadRequest("Invalid machine data.");
             }
+            var existingMachine = await _context.Machine.FirstOrDefaultAsync(m => m.Id == id);
 
-            var existingMachine = _context.Machine.FirstOrDefault(m => m.Id == id);
             if (existingMachine == null)
             {
                 return NotFound();
@@ -82,6 +84,8 @@ namespace Desafio.API.Controllers
             existingMachine.Name = updatedMachine.Name;
             existingMachine.Location = updatedMachine.Location;
             existingMachine.Status = updatedMachine.Status;
+
+            await _context.SaveChangesAsync();
 
             return NoContent(); // 204 - sem conteúdo, atualização ok
         }
