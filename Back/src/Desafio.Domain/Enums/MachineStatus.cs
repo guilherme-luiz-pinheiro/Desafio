@@ -1,4 +1,4 @@
-namespace Desafio.API.Models.Enums
+namespace Desafio.Domain.Enums
 {
     public enum MachineStatus
     {

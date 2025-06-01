@@ -1,7 +1,7 @@
 using System;
-using Desafio.API.Models.Enums;
+using Desafio.Domain.Enums;
 
-namespace Desafio.API.Models
+namespace Desafio.Domain
 {
     public class Telemetry
     {

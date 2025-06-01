@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Desafio.API.Models;
-using Desafio.API.Data;
+using Desafio.Domain;
+using Desafio.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,9 +13,9 @@ namespace Desafio.API.Controllers
     [Route("api/[controller]")]
     public class TelemetryController : ControllerBase
     {
-        private readonly DataContext _context;
+        private readonly DesafioContext _context;
 
-        public TelemetryController(DataContext context)
+        public TelemetryController(DesafioContext context)
         {
             _context = context;
         }
@@ -29,7 +29,7 @@ namespace Desafio.API.Controllers
 
             telemetry.Timestamp = DateTime.UtcNow;
 
-            _context.Telemetry.Add(telemetry);
+            _context.Telemetries.Add(telemetry);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetTelemetryById), new { id = telemetry.Id }, telemetry);
@@ -39,7 +39,7 @@ namespace Desafio.API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Telemetry>> GetTelemetryById(int id)
         {
-            var telemetry = await _context.Telemetry.FindAsync(id);
+            var telemetry = await _context.Telemetries.FindAsync(id);
 
             if (telemetry == null)
                 return NotFound();
@@ -51,7 +51,7 @@ namespace Desafio.API.Controllers
         [HttpGet("machine/{machineId}")]
         public async Task<ActionResult> GetTelemetryByMachineId(Guid machineId)
         {
-            var telemetries = await _context.Telemetry
+            var telemetries = await _context.Telemetries
                 .Where(t => t.MachineId == machineId)
                 .OrderByDescending(t => t.Timestamp)
                 .ToListAsync();

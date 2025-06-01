@@ -2,10 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Desafio.API.Models;
-using Desafio.API.Data;
+using Desafio.Domain;
+using Desafio.Persistence;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Desafio.Domain.Enums;
 
 namespace Desafio.API.Controllers
 {
@@ -13,8 +14,8 @@ namespace Desafio.API.Controllers
     [Route("api/[controller]")]
     public class MachinesController : ControllerBase
     {
-        private readonly DataContext _context;
-        public MachinesController(DataContext context)
+        private readonly DesafioContext _context;
+        public MachinesController(DesafioContext context)
         {
             _context = context;
         }
@@ -29,7 +30,7 @@ namespace Desafio.API.Controllers
             }
 
             machine.Id = Guid.NewGuid();
-            _context.Machine.Add(machine);
+            _context.Machines.Add(machine);
 
             // ESSENCIAL: salva as mudanças no banco
             await _context.SaveChangesAsync();
@@ -41,13 +42,13 @@ namespace Desafio.API.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            return Ok(_context.Machine);
+            return Ok(_context.Machines);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetMachineById(Guid id)
         {
-            var machine = _context.Machine.Where(machine => machine.Id == id);
+            var machine = _context.Machines.Where(machine => machine.Id == id);
             if (machine == null)
             {
                 return NotFound();
@@ -56,9 +57,9 @@ namespace Desafio.API.Controllers
         }
 
         [HttpGet("{status}")]
-        public IActionResult GetMachineByStatus(string status)
+        public IActionResult GetMachineByStatus(MachineStatus status)
         {
-            var machine = _context.Machine.Where(machine => machine.Status == status);
+            var machine = _context.Machines.Where(machine => machine.Status == status);
             if (machine == null)
             {
                 return NotFound();
@@ -73,7 +74,7 @@ namespace Desafio.API.Controllers
             {
                 return BadRequest("Invalid machine data.");
             }
-            var existingMachine = await _context.Machine.FirstOrDefaultAsync(m => m.Id == id);
+            var existingMachine = await _context.Machines.FirstOrDefaultAsync(m => m.Id == id);
 
             if (existingMachine == null)
             {
@@ -93,13 +94,13 @@ namespace Desafio.API.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeleteMachine(Guid id)
         {
-            var machine = _context.Machine.FirstOrDefault(m => m.Id == id);
+            var machine = _context.Machines.FirstOrDefault(m => m.Id == id);
             if (machine == null)
             {
                 return NotFound();
             }
 
-            _context.Machine.Remove(machine);
+            _context.Machines.Remove(machine);
             return NoContent();
         }
     }

@@ -13,7 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
-using Desafio.API.Data;
+using Desafio.Persistence;
 using Microsoft.EntityFrameworkCore;
 using SQLitePCL;
 
@@ -33,7 +33,7 @@ namespace Desafio.API
         {
             Batteries.Init();
 
-            services.AddDbContext<DataContext>(
+            services.AddDbContext<DesafioContext>(
                 context => context.UseSqlite(Configuration.GetConnectionString("Default"))
             );
             services.AddControllers(options =>
