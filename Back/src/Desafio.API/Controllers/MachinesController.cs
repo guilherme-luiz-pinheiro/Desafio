@@ -53,6 +53,17 @@ namespace Desafio.API.Controllers
             return Ok(machine);
         }
 
+        [HttpGet("{status}")]
+        public IActionResult GetMachineByStatus(string status)
+        {
+            var machine = _context.Machine.Where(machine => machine.Status == status);
+            if (machine == null)
+            {
+                return NotFound();
+            }
+            return Ok(machine);
+        }
+
         [HttpPut("{id}")]
         public IActionResult UpdateMachine(Guid id, [FromBody] Machine updatedMachine)
         {
