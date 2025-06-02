@@ -1,21 +1,20 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.IO;
-using Desafio.Persistence;
+using Desafio.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using SQLitePCL;
+using Desafio.Application.Interfaces;
+using Desafio.Application;
+using Desafio.Persistence;
+using Desafio.Persistence.Interfaces;
+using Desafio.API.Hubs;
 
 namespace Desafio.API
 {
@@ -33,28 +32,42 @@ namespace Desafio.API
         {
             Batteries.Init();
 
+            // Registro das dependênciass
+            services.AddScoped<IMachineService, MachineService>();
+            services.AddScoped<IGeralPersistence, GeralPersistence>();
+            services.AddScoped<IMachinePersistence, MachinePersistence>();
+            services.AddScoped<ITelemetryService, TelemetryService>();
+            services.AddScoped<ITelemetryPersistence, TelemetryPersistence>(); // ✅ ESSA LINHA
+
             services.AddDbContext<DesafioContext>(
                 context => context.UseSqlite(Configuration.GetConnectionString("Default"))
             );
+
             services.AddControllers(options =>
             {
                 options.OutputFormatters.Insert(0, new Microsoft.AspNetCore.Mvc.Formatters.StringOutputFormatter());
             });
-            services.AddCors();
+            services.AddSignalR();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAngularApp", builder =>
+                {
+                    builder.WithOrigins("http://localhost:4200") // Use http se Angular não usar https
+                           .AllowAnyHeader()
+                           .AllowAnyMethod()
+                           .AllowCredentials();
+                });
+            });
 
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Desafio.API", Version = "v1" });
 
-        // Adiciona os comentários XML para documentação do Swagger
-        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
             });
         }
-
-
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -69,17 +82,17 @@ namespace Desafio.API
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            // ✅ Coloque o CORS aqui
+            app.UseCors("AllowAngularApp");
 
-            app.UseCors(x => x.AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowAnyOrigin()            
-            );
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<TelemetryHub>("/ws/telemetry");
             });
         }
+
     }
 }

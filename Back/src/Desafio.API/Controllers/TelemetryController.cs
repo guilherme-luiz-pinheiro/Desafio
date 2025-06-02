@@ -1,11 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Desafio.Domain;
-using Desafio.Persistence;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+using Desafio.Domain.Enums;
+using Desafio.Application.Interfaces;
+using System;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
+using Desafio.API.Hubs;
 
 namespace Desafio.API.Controllers
 {
@@ -13,49 +14,71 @@ namespace Desafio.API.Controllers
     [Route("api/[controller]")]
     public class TelemetryController : ControllerBase
     {
-        private readonly DesafioContext _context;
+        private readonly IHubContext<TelemetryHub> _hub;
 
-        public TelemetryController(DesafioContext context)
+        private readonly ITelemetryService _telemetryService;
+        private readonly IMachineService _machineService;
+
+        public TelemetryController(ITelemetryService telemetryService, IMachineService machineService, IHubContext<TelemetryHub> hub)
         {
-            _context = context;
+            _telemetryService = telemetryService;
+            _machineService = machineService;
+            _hub = hub;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<Telemetry[]>> GetAll()
+        {
+            try
+            {
+                var telemetries = await _telemetryService.GetAllTelemetriesAsync();
+                if (telemetries == null) return NotFound("Nenhuma telemetria encontrada.");
+                return Ok(telemetries);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Erro ao tentar recuperar Telemetrias, Erro: {ex.Message}");
+            }
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostTelemetry([FromBody] Telemetry telemetry)
+        public async Task<IActionResult> Post([FromBody] Telemetry telemetry)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            telemetry.Timestamp = DateTime.UtcNow;
-
-            _context.Telemetries.Add(telemetry);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetTelemetryById), new { id = telemetry.Id }, telemetry);
+            try
+            {
+                var resultInsert = await _telemetryService.AddTelemetry(telemetry);
+                if (resultInsert == null) return BadRequest("Erro ao tentar adicionar Telemetria.");
+                var resultUpdate = await _machineService.UpdateMachineTelemetry(telemetry);
+                if (resultUpdate == null) return BadRequest("Erro ao tentar atualizar a maquina.");
+                await _hub.Clients.All.SendAsync("ReceiveTelemetry", new
+                {
+                    id = telemetry.MachineId,
+                    status = telemetry.Status,
+                    location = telemetry.Location
+                });
+                
+                return Ok(resultInsert);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Erro ao tentar adicionar Telemetria, Erro: {ex.Message}");
+            }
         }
 
-        // GET: api/Telemetry/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Telemetry>> GetTelemetryById(int id)
+        [HttpGet("status/{status}")]
+        public async Task<ActionResult<Telemetry[]>> GetByStatus(MachineStatus status)
         {
-            var telemetry = await _context.Telemetries.FindAsync(id);
-
-            if (telemetry == null)
-                return NotFound();
-
-            return telemetry;
-        }
-
-        // GET: api/Telemetry/machine/7c748fc3-xxxx-yyyy-zzzz-abc123
-        [HttpGet("machine/{machineId}")]
-        public async Task<ActionResult> GetTelemetryByMachineId(Guid machineId)
-        {
-            var telemetries = await _context.Telemetries
-                .Where(t => t.MachineId == machineId)
-                .OrderByDescending(t => t.Timestamp)
-                .ToListAsync();
-
-            return Ok(telemetries);
+            try
+            {
+                var telemetry = await _telemetryService.GetAllTelemetriesByStatusAsync(status);
+                if (telemetry == null) return NotFound("Nenhuma Telemetria encontrada.");
+                return Ok(telemetry);
+            }
+            catch (Exception ex)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, $"Erro ao tentar recuperar Telemetrias, Erro: {ex.Message}");
+            }
         }
     }
+
 }

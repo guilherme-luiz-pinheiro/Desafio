@@ -1,7 +1,7 @@
 using Desafio.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Desafio.Persistence
+namespace Desafio.Persistence.Context
 {
 
     public class DesafioContext : DbContext

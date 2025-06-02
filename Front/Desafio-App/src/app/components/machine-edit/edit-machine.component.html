@@ -1,0 +1,28 @@
+<h2>Editar Máquina</h2>
+
+<form [formGroup]="machineForm" (ngSubmit)="save()">
+  <label>
+    Nome:
+    <input formControlName="name" />
+  </label>
+  <br />
+
+  <label>
+    Localização:
+    <input formControlName="location" />
+  </label>
+  <br />
+
+  <label>
+    Status:
+    <select formControlName="status">
+      <option [value]="0">Parada</option>
+      <option [value]="1">Manutenção</option>
+      <option [value]="2">Operando</option>
+    </select>
+  </label>
+  <br />
+
+  <button type="submit" [disabled]="machineForm.invalid">Salvar</button>
+  <button type="button" (click)="router.navigate(['/dashboard'])">Cancelar</button>
+</form>

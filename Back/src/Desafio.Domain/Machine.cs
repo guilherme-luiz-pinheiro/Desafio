@@ -10,7 +10,7 @@ namespace Desafio.Domain
         public string Name { get; set; }
         public string Location { get; set; }
         public MachineStatus Status { get; set; }
-        public IEnumerable<Telemetry> Telemetries { get; set; }
+        public ICollection<Telemetry> Telemetries { get; set; } = new List<Telemetry>();
 
     }
 }

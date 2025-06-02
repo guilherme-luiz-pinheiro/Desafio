@@ -1,0 +1,27 @@
+<h2>Máquinas</h2>
+
+<table *ngIf="machines.length > 0; else noData">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Localização</th>
+      <th>Status</th>
+      <th>Ações</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let m of machines">
+      <td>{{ m.name }}</td>
+      <td>{{ m.location }}</td>
+      <td>{{ getStatusLabel(m.status) }}</td>
+      <td>
+        <button (click)="editMachine(m.id)">Editar</button>
+        <button (click)="deleteMachine(m.id)">Excluir</button>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<ng-template #noData>
+  <p>Nenhuma máquina cadastrada.</p>
+</ng-template>

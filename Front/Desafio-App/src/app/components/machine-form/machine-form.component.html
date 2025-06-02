@@ -1,0 +1,30 @@
+<h2>{{ isEditMode ? 'Editar Máquina' : 'Cadastro de Máquina' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>Nome:</label>
+  <input formControlName="name" />
+  <div *ngIf="form.get('name')?.invalid && form.get('name')?.touched" style="color: red;">
+    Nome é obrigatório.
+  </div>
+
+  <label>Localização:</label>
+  <input formControlName="location" />
+  <div *ngIf="form.get('location')?.invalid && form.get('location')?.touched" style="color: red;">
+    Localização é obrigatória.
+  </div>
+
+  <label>Status:</label>
+  <select formControlName="status">
+    <option [value]="0">Parada</option>
+    <option [value]="1">Manutenção</option>
+    <option [value]="2">Operando</option>
+  </select>
+
+  <button type="submit" [disabled]="loading">
+    {{ isEditMode ? 'Salvar' : 'Cadastrar' }}
+  </button>
+
+  <button *ngIf="isEditMode" type="button" (click)="deleteMachine()" [disabled]="loading">
+    Excluir
+  </button>
+</form>

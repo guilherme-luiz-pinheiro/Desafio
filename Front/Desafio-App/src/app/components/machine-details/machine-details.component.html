@@ -1,0 +1,20 @@
+<div *ngIf="machine; else loadingOrError" class="card shadow-sm p-4 mx-auto mt-4" style="max-width: 600px;">
+  <h2 class="card-title text-center mb-4">Detalhes da Máquina</h2>
+  <p><strong>ID:</strong> {{ machine.id }}</p>
+  <p><strong>Nome:</strong> {{ machine.name }}</p>
+  <p><strong>Localização:</strong> {{ machine.location }}</p>
+  
+  <p><strong>Status:</strong> 
+    <span class="badge" [ngClass]="getStatusClass(machine.status)">
+      {{ getStatusLabel(machine.status) }}
+    </span>
+  </p>
+
+  <!-- Você pode adicionar aqui mais detalhes de telemetria se quiser -->
+</div>
+
+<ng-template #loadingOrError>
+  <div class="text-center text-muted mt-5">
+    <p class="fs-5">Carregando<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></p>
+  </div>
+</ng-template>
