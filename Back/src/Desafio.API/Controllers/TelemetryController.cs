@@ -20,7 +20,6 @@ namespace Desafio.API.Controllers
             _context = context;
         }
 
-        // POST: api/Telemetry
         [HttpPost]
         public async Task<IActionResult> PostTelemetry([FromBody] Telemetry telemetry)
         {
