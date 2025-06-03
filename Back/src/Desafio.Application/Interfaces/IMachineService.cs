@@ -5,6 +5,7 @@ using Desafio.Domain.Enums;
 
 namespace Desafio.Application.Interfaces
 {
+    // Interface que define os contratos do serviço de máquinas
     public interface IMachineService
     {
         Task<Machine> AddMachine(Machine model);

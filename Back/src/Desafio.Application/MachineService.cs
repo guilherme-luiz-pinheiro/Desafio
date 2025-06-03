@@ -7,10 +7,11 @@ using Desafio.Persistence.Interfaces;
 
 namespace Desafio.Application
 {
+    // Implementação da lógica de negócios relacionada às máquinas
     public class MachineService : IMachineService
     {
-        private readonly IGeralPersistence _geralPersistence;
-        private readonly IMachinePersistence _machinePersistence;
+        private readonly IGeralPersistence _geralPersistence;           // Interface genérica para operações de banco
+        private readonly IMachinePersistence _machinePersistence;       // Interface específica para persistência de máquinas
 
         public MachineService(IGeralPersistence geralPersistence,
                               IMachinePersistence machinePersistence)
@@ -19,38 +20,43 @@ namespace Desafio.Application
             _machinePersistence = machinePersistence;
         }
 
+        /// <summary>
+        /// Adiciona uma nova máquina ao banco de dados.
+        /// </summary>
         public async Task<Machine> AddMachine(Machine model)
         {
             try
             {
-                _geralPersistence.Add<Machine>(model);
-                if (await _geralPersistence.SaveChangesAsync())
+                _geralPersistence.Add<Machine>(model); // Adiciona a máquina ao contexto
+                if (await _geralPersistence.SaveChangesAsync()) // Salva as alterações no banco
                 {
-                    return await _machinePersistence.GetMachineByIdAsync(model.Id);
+                    return await _machinePersistence.GetMachineByIdAsync(model.Id); // Retorna a máquina salva
                 }
                 return null;
-
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-
         }
 
+        /// <summary>
+        /// Atualiza os dados de uma máquina existente.
+        /// </summary>
         public async Task<Machine> UpdateMachine(Machine model)
         {
             try
             {
-                var machine = await _machinePersistence.GetMachineByIdAsync(model.Id);
+                var machine = await _machinePersistence.GetMachineByIdAsync(model.Id); // Verifica se a máquina existe
                 if (machine == null)
                 {
                     return null;
                 }
-                _geralPersistence.Update(model);
+
+                _geralPersistence.Update(model); // Atualiza os dados
                 if (await _geralPersistence.SaveChangesAsync())
                 {
-                    return await _machinePersistence.GetMachineByIdAsync(model.Id);
+                    return await _machinePersistence.GetMachineByIdAsync(model.Id); // Retorna a máquina atualizada
                 }
                 return null;
             }
@@ -60,6 +66,9 @@ namespace Desafio.Application
             }
         }
 
+        /// <summary>
+        /// Remove uma máquina do banco de dados.
+        /// </summary>
         public async Task<bool> DeleteMachine(Guid id)
         {
             try
@@ -67,11 +76,11 @@ namespace Desafio.Application
                 var machine = await _machinePersistence.GetMachineByIdAsync(id);
                 if (machine == null)
                 {
-                    throw new Exception("Maquina para delete não foi encontrado!!");
+                    throw new Exception("Máquina para deletar não foi encontrada!");
                 }
-                _geralPersistence.Delete<Machine>(machine);
 
-                return await _geralPersistence.SaveChangesAsync();
+                _geralPersistence.Delete<Machine>(machine); // Remove a máquina do contexto
+                return await _geralPersistence.SaveChangesAsync(); // Salva a exclusão no banco
             }
             catch (Exception ex)
             {
@@ -79,6 +88,9 @@ namespace Desafio.Application
             }
         }
 
+        /// <summary>
+        /// Retorna todas as máquinas cadastradas.
+        /// </summary>
         public async Task<Machine[]> GetAllMachinesAsync()
         {
             try
@@ -89,11 +101,13 @@ namespace Desafio.Application
             }
             catch (Exception ex)
             {
-
                 throw new Exception(ex.Message);
             }
         }
 
+        /// <summary>
+        /// Retorna todas as máquinas filtradas por status.
+        /// </summary>
         public async Task<Machine[]> GetAllMachinesByStatusAsync(MachineStatus status)
         {
             try
@@ -104,26 +118,30 @@ namespace Desafio.Application
             }
             catch (Exception ex)
             {
-
                 throw new Exception(ex.Message);
             }
         }
 
+        /// <summary>
+        /// Retorna uma máquina específica pelo ID.
+        /// </summary>
         public async Task<Machine> GetMachineByIdAsync(Guid id)
         {
             try
             {
-                var machines = await _machinePersistence.GetMachineByIdAsync(id);
-                if (machines == null) return null;
-                return machines;
+                var machine = await _machinePersistence.GetMachineByIdAsync(id);
+                if (machine == null) return null;
+                return machine;
             }
             catch (Exception ex)
             {
-
                 throw new Exception(ex.Message);
             }
         }
 
+        /// <summary>
+        /// Atualiza os dados da máquina com base nas informações da telemetria.
+        /// </summary>
         public async Task<Machine> UpdateMachineTelemetry(Telemetry telemetry)
         {
             try
@@ -133,14 +151,17 @@ namespace Desafio.Application
                 {
                     return null;
                 }
+
+                // Atualiza os dados da máquina com base na última telemetria
                 machine.Location = telemetry.Location;
                 machine.Status = telemetry.Status;
 
-                _geralPersistence.Update(machine);
+                _geralPersistence.Update(machine); // Atualiza no contexto
                 if (await _geralPersistence.SaveChangesAsync())
                 {
                     return await _machinePersistence.GetMachineByIdAsync(telemetry.MachineId);
                 }
+
                 return null;
             }
             catch (Exception ex)
