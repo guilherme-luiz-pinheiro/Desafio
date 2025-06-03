@@ -1,27 +1,72 @@
-# Desafio 
+# Desafio Técnico - Plataforma de Monitoramento de Máquinas
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.18.
+## Tecnologias Utilizadas
+- **Backend:** .NET 5 (C#)
+- **Frontend:** Angular 12
+- **Node.js:** Versão 18
+- **WebSocket:** Comunicação em tempo real
+- **HTTP Client:** Angular HttpClient para consumo da API
+- **Docker:** (Opcional) para containerização da aplicação
 
-## Development server
+## Funcionalidades
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+### Backend (.NET 5)
+- API RESTful para cadastro, atualização e consulta de máquinas.
+- Cada máquina possui:
+  - Identificador único (UUID)
+  - Nome
+  - Localização (coordenadas ou nome do local)
+  - Status (operando, parada, manutenção)
+- Endpoint para atualização de telemetria (localização e status).
+- Atualização de status em tempo real via WebSocket.
+- Simulação automática de dados de telemetria para máquinas.
 
-## Code scaffolding
+### Frontend (Angular 12)
+- Dashboard com lista de máquinas e status em tempo real via WebSocket.
+- Formulário para cadastro e edição de máquinas com validação.
+- Página de detalhes para visualizar informações completas da máquina.
+- Navegação entre páginas configurada via Angular Router.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Como Rodar o Projeto
 
-## Build
+### Pré-requisitos
+- .NET 5 SDK instalado
+- Node.js versão 18 instalada
+- Angular CLI (opcional para desenvolvimento)
+- Docker (opcional para containerização)
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Backend
+1. Navegue até a pasta do backend.
+2. Execute `dotnet run` para iniciar a API.
 
-## Running unit tests
+### Frontend
+1. Navegue até a pasta do frontend.
+2. Execute `npm install` para instalar dependências.
+3. Execute `npm start` para iniciar o servidor Angular.
+4. Acesse `http://localhost:4200` no navegador.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### Observação
+- O comando para iniciar o frontend é `npm start` e não `ng serve`.
 
-## Running end-to-end tests
+## Testes
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+- Atualmente, não há testes automatizados implementados.
+- Futuras versões poderão incluir testes unitários e e2e.
 
-## Further help
+## Melhorias Futuras
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+- Implementar testes unitários e de integração.
+- Adicionar mapa interativo para visualização das máquinas.
+- Containerizar a aplicação com Docker e docker-compose.
+- Implementar autenticação e autorização.
+- Melhorar o tratamento de erros e UX.
+
+## Contato
+
+Para dúvidas ou contribuições, entre em contato:  
+**Guilherme Luiz Pinheiro Costa**  
+Email: luizguipinh@gmail.com  
+GitHub: https://github.com/guilherme-luiz-pinheiro
+
+---
+
